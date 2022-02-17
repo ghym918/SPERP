@@ -1,0 +1,1329 @@
+########################################################################################################################
+########################################################################################################################
+#                                                                                                                      #
+#                                00000           0       0000000000000       0                                         #
+#                                0    00        0 0            0            0 0                                        #
+#                                0      0      0   0           0           0   0                                       #
+#                                0       0     0   0           0           0   0                                       #
+#                                0       0    0     0          0          0     0                                      #
+#                                0       0    0     0          0          0     0                                      #
+#                                0       0   000000000         0         000000000                                     #
+#                                0      0    0       0         0         0       0                                     #
+#                                0    00    0         0        0        0         0                                    #
+#                                00000      0         0        0        0         0                                    #
+#                                                                                                                      #
+########################################################################################################################
+#                                                                                                                      #
+# PRACTICE DATA: contains hard coded values for practice trials structure is the same as the main program              #
+#                                                                                                                      #
+#                                                                                                                      #
+#                                                                                                                      #
+# multidimensional parallel arrays to store sentence chunks                                                            #
+# primes = 3d array to store the sentence chunks for the two different primes list, levels from highest to lowest:     #
+#          6 blocks, 12 trials per block, 4 chunks per trial                                                           #
+#                                                                                                                      #
+# primes_codes = parallel to primes but only the highest two dimensions each integer represents the port code for the  #
+#                3rd chunk of the given trial.                                                                         #
+#                                                                                                                      #
+# targets = same structure as primes, contains target chunks.                                                          #
+#                                                                                                                      #
+# targets_codes = same structure as primes_codes but contains port code for 3rd chunk of target trial.                 #
+#                                                                                                                      #
+# experimental_prompt = contains question to be asked after targets for each trial                                     #
+#                                                                                                                      #
+# experimental_responses = parallel to experimental_prompt, contains correct button response to corresonding prompt    #
+#                                                                                                                      #
+# baselines = contains all baseline sentences to be presented in psuedorandom order                                    #
+#                                                                                                                      #
+# baseline_codes = contains port codes for each baseline block, could probably be compressed                           #
+#                                                                                                                      #
+# baseline_prompts = contains questions to be psuedorandomly asked after SOME baselines                                #
+#                                                                                                                      #
+# baseline_responses = contains correct button codes for parallel baseline_prompts                                     #
+#                                                                                                                      #
+# baseline_indicies = contains psuedorandom indicies for list 1 and list 2, used to access baselines and parallel      #
+#                     arrays to get data                                                                               #
+#                                                                                                                      #
+# baseline_prompt_indicies = contains integer 0 or 1 to represent if a question should be asked on a particular trial, #
+# if question should be asked grabs corresponding question base_pompts with index.                                     #
+#                                                                                                                      #
+#      TRIAL INDICIES                                                                                                  #
+#  |----0----|-----1----| ...                                                                                          #
+#  | 1 = YES |  2 = NO  | ...                                                                                          #
+#                                                                                                                      #
+# fillers = contains filler sentences broken into chunks.                                                              #
+#                                                                                                                      #
+# filler_prompts = parallel to fillers, contains prompts to be asked for given questions                               #
+#                                                                                                                      #
+# filler_indicies = contains psuedorandom indicies for list 1 and list 2, used to access parallel arrays               #
+#                                                                                                                      #
+# filler_response_indicies = contains integer 0 or 1 to repesent if a question should be asked on a particular trial   #
+#                                                                                                                      #
+# block_indicies =  contains indicies to be randomized each run for block order                                        #
+#                                                                                                                      #
+########################################################################################################################
+########################################################################################################################
+
+array <string> practice_experimental[2][2][4] = {{{"The child", "lifted", "by the mother", "was happy."},
+												{"The bride", "lifted", "by the groom", "was beautiful."}},
+												
+												{{"The father", "tickled", "the baby", "that was cute."},
+												{"The brother", "tickled", "by the sister", "was annoyed."}}};
+
+array <string> practice_baseline[2][4] = {{"The camper", "was leaping", "into the pool."},
+	    									{"The grandma", "were walking", "on the path."}};
+
+array <string> practice_filler[2][4] = {{"The vet", "weighed", "the cat", "that was heavy."},
+										{"The policeman", "patted", "the dog", "that was loyal."}};
+
+array <string> practice_e_probes[2] = {"Did the bride lift the groom?", "Did the student read the poem?"};
+array <int> practice_e_responses[2] = {2, 1};
+
+string practice_b_probe = "Did the camper leap into the pool?";
+int practice_b_response = 1;
+
+string practice_f_probe = "Did the policeman pat the cat?";
+int practice_f_response = 2;
+
+
+array <string> primes_1[6][12][4] = {{{"The manager", "proposed", "the boss", "that was friendly."},
+                                    {"The teacher", "recognized", "by the student", "was tall."},
+                                    {"The child", "scratched", "by the dog", "was annoyed."},
+                                    {"The customer", "selected", "the guard", "that was strong."},
+                                    {"The dancer", "recorded", "by the professor", "was graceful."},
+                                    {"The trainer", "wanted", "by the athlete", "was busy."},
+                                    {"The student", "discussed", "the grade", "that was unfair."},
+                                    {"The woman", "watched", "the crowd", "that was large."},
+                                    {"The teacher", "loved", "by the class", "was cheerful."},
+                                    {"The candidate", "considered", "the company", "that was trustworthy."},
+                                    {"The prisoner", "transported", "by the guards", "was dangerous."},
+                                    {"The trainer", "requested", "the dancer", "who was short."}},
+                                    
+                                    {{"The pilot", "attacked", "by the mob", "was scared."},
+                                    {"The worker", "paid", "the fee", "that was expensive."},
+                                    {"The client", "examined", "by the lawyer", "was guilty."},
+                                    {"The child", "chased", "the chicken", "that was escaping."},
+                                    {"The customer", "sketched", "by the waitress", "was kind."},
+                                    {"The soldier", "studied", "the journalist", "who was writing an article."},
+                                    {"The star", "recognized", "the fans", "who were supportive."},
+                                    {"The man", "scratched", "by the cat", "was badly injured."},
+                                    {"The client", "wanted", "by the detective", "was rich."},
+                                    {"The assistant", "described", "by the visitor", "had green eyes."},
+                                    {"The assistant", "recorded", "the actor", "that was arrogant."},
+                                    {"The star", "identified", "the policeman", "who had black hair."}},
+                                    
+                                    {{"The customer", "selected", "by the guard", "was suspicious."},
+                                    {"The athlete", "studied", "the trainer", "who was fit."},
+                                    {"The star", "identified", "by the policeman", "had blue eyes."},
+                                    {"The referee", "sent", "the report", "that was important."},
+                                    {"The scientist", "considered", "by the committee", "was qualified."},
+                                    {"The tutor", "requested", "the child", "that was well-behaved."},
+                                    {"The criminal", "recognized", "the officer", "who was strong."},
+                                    {"The tourist", "chased", "by the lion", "was scared."},
+                                    {"The patient", "expected", "the surgeon", "who was an expert."},
+                                    {"The thief", "watched", "by the cop", "was sneaky."},
+                                    {"The pilot", "attacked", "the mob", "that was angry."},
+                                    {"The client", "discussed", "by the company", "was convincing."}},
+                                    
+                                    {{"The candidate", "accepted", "the party", "that was supportive."},
+                                    {"The father", "sketched", "the daughter", "who had red hair."},
+                                    {"The singer", "recorded", "the reporters", "that were annoying."},
+                                    {"The mailman", "transported", "by the airline", "had secret letters."},
+                                    {"The worker", "examined", "the boss", "who was lazy."},
+                                    {"The assistant", "described", "the visitor", "who was young."},
+                                    {"The contestant", "selected", "by the bachelor", "was the best choice."},
+                                    {"The woman", "towed", "the van", "that was stuck in mud."},
+                                    {"The artist", "studied", "by the researcher", "was unknown."},
+                                    {"The actress", "loved", "by the fans", "was in a movie."},
+                                    {"The thief", "identified", "by the victim", "was tall."},
+                                    {"The nurse", "requested", "by the hospital", "was busy."}},
+                                    
+                                    {{"The child", "scratched", "the dog", "that was fluffy."},
+                                    {"The speaker", "proposed", "by the group", "was engaging."},
+                                    {"The man", "paid", "by the roommate", "was stingy."},
+                                    {"The man", "sketched", "the painter", "who had a mole."},
+                                    {"The nurse", "sent", "the doctor", "who was on call."},
+                                    {"The mailman", "transported", "the box", "that was heavy."},
+                                    {"The woman", "towed", "by the landlord", "was annoyed."},
+                                    {"The patient", "expected", "by the surgeon", "was sick."},
+                                    {"The boy", "described", "by the woman", "was handsome."},
+                                    {"The doctor", "accepted", "the job", "that was tiring."},
+                                    {"The team", "discussed", "the strategy", "that was effective."},
+                                    {"The boy", "attacked", "by the dog", "had major injuries."}},
+                                    
+                                    {{"The engineer", "examined", "the employee", "who was hard-working."},
+                                    {"The couple", "towed", "by the driver", "was in an accident."},
+                                    {"The actress", "loved", "the fans", "who were excited."},
+                                    {"The friend", "paid", "the gardener", "who was helpful."},
+                                    {"The director", "accepted", "by the academy", "was happy."},
+                                    {"The lifeguard", "watched", "the swimmer", "who was fit."},
+                                    {"The trainer", "wanted", "the athlete", "who was fast."},
+                                    {"The mailman", "expected", "by the worker", "was quick."},
+                                    {"The lawyer", "sent", "by the governor", "was late."},
+                                    {"The actor", "proposed", "the writer", "who was creative."},
+                                    {"The candidate", "considered", "by the company", "was accomplished."},
+                                    {"The child", "chased", "by the chicken", "was fast."}}};
+
+array <string> primes_2[6][12][4] = {{{"The director", "described", "by the actress", "was rude."},
+                                    {"The prisoner", "transported", "the guards", "that were kidnapped."},
+                                    {"The thief", "watched", "the cop", "who was asleep."},
+                                    {"The worker", "paid", "by the manager", "was capable."},
+                                    {"The manager", "proposed", "by the boss", "was accomplished."},
+                                    {"The mother", "attacked", "by the thief", "was scratched."},
+                                    {"The vet", "scratched", "the tiger", "that was itchy."},
+                                    {"The client", "discussed", "the product", "that was new."},
+                                    {"The star", "recognized", "by the fans", "was famous."},
+                                    {"The athlete", "studied", "by the trainer", "was strong."},
+                                    {"The teacher", "loved", "the class", "that was well-behaved."},
+                                    {"The singer", "wanted", "the company", "that was famous."}},
+                                    
+                                    {{"The mailman", "expected", "the worker", "who was kind."},
+                                    {"The teacher", "recognized", "the student", "who was hard-working."},
+                                    {"The vet", "scratched", "by the tiger", "was hurt."},
+                                    {"The dancer", "recorded", "the professor", "who was talented."},
+                                    {"The referee", "sent", "by the office", "was fair."},
+                                    {"The soldier", "chased", "the guards", "that was lazy."},
+                                    {"The student", "discussed", "by the program", "was failing."},
+                                    {"The candidate", "accepted", "by the party", "was qualified."},
+                                    {"The couple", "towed", "the boat", "that was in the way."},
+                                    {"The woman", "watched", "by the crowd", "was suspicious."},
+                                    {"The singer", "wanted", "by the company", "had a nice voice."},
+                                    {"The student", "considered", "the college", "that was highly ranked."}},
+                                    
+                                    {{"The criminal", "towed", "the truck", "that was in a ditch."},
+                                    {"The friend", "paid", "by the gardener", "was grateful."},
+                                    {"The nurse", "requested", "the hospital", "that had the best care."},
+                                    {"The actor", "proposed", "by the writer", "was talented."},
+                                    {"The engineer", "examined", "by the board", "was qualified."},
+                                    {"The chef", "expected", "the couple", "who was hungry."},
+                                    {"The tourist", "chased", "the lion", "that ate their food."},
+                                    {"The scientist", "considered", "the results", "that were surprising."},
+                                    {"The assistant", "selected", "by the king", "was loyal."},
+                                    {"The man", "sketched", "by the painter", "was handsome."},
+                                    {"The artist", "studied", "the researcher", "who was writing a book."},
+                                    {"The child", "identified", "by the teacher", "had blond hair."}},
+                                    
+                                    
+                                    {{"The trainer", "requested", "by the dancer", "was strict."},
+                                    {"The dog", "loved", "the child", "that was nice."},
+                                    {"The nurse", "sent", "by the doctor", "was kind."},
+                                    {"The contestant", "selected", "the bachelor", "that was handsome."},
+                                    {"The criminal", "towed", "by the policeman", "was angry."},
+                                    {"The client", "examined", "the lawyer", "who was reliable."},
+                                    {"The soldier", "studied", "by the journalist", "was brave."},
+                                    {"The thief", "identified", "the victim", "who was rich."},
+                                    {"The king", "transported", "the crown", "that was gold."},
+                                    {"The chef", "expected", "by the couple", "was late."},
+                                    {"The doctor", "accepted", "by the hospital", "was smart."},
+                                    {"The customer", "sketched", "the waitress", "who was beautiful."}},
+                                    
+                                    {{"The boy", "attacked", "the monster", "that was scary."},
+                                    {"The lawyer", "sent", "the files", "that were heavy."},
+                                    {"The king", "transported", "by the soldier", "was in disguise."},
+                                    {"The dog", "loved", "by the child", "was cute."},
+                                    {"The boy ", "described", "the woman", "who was beautiful."},
+                                    {"The assistant", "selected", "the king", "that was powerful."},
+                                    {"The child", "identified", "the teacher", "that was helpful."},
+                                    {"The director", "accepted", "the award", "that was important."},
+                                    {"The father", "sketched", "by the daughter", "was tall."},
+                                    {"The criminal", "recognized", "by the officer", "was dangerous."},
+                                    {"The worker", "examined", "by the boss", "was wasteful."},
+                                    {"The singer", "recorded", "by the reporters", "was in a scandal."}},
+                                    
+                                    {{"The soldier", "chased", "by the guard", "was guilty."},
+                                    {"The director", "described", "the actress", "that was rich."},
+                                    {"The man", "scratched", "the cat", "that was purring."},
+                                    {"The team", "discussed", "by the coach", "was winning."},
+                                    {"The tutor", "requested", "by the school", "was smart."},
+                                    {"The student", "considered", "by the college", "was good at sports."},
+                                    {"The assitant", "recorded", "by the actor", "was nosy."},
+                                    {"The man", "paid", "the roommate", "who was nice."},
+                                    {"The lifeguard", "watched", "by the swimmer", "had a suntan."},
+                                    {"The client", "wanted", "the detective", "who was smart."},
+                                    {"The mother", "attacked", "the thief", "that was mean."},
+                                    {"The speaker", "proposed", "the solution", "that was doable."}}};
+
+
+array <int> primes_codes_1 [6][12] = {{32, 31, 31, 32, 31, 31, 32, 32, 31, 32, 31, 32},
+                                    {31, 32, 31, 32, 31, 32, 32, 31, 31, 31, 32, 32},
+                                    {31, 32, 31, 32, 31, 32, 32, 31, 32, 31, 32, 31},
+                                    {32, 32, 32, 31, 32, 32, 31, 32, 31, 31, 31, 31},
+                                    {32, 31, 31, 32, 32, 32, 31, 31, 31, 32, 32, 31},
+                                    {32, 31, 32, 32, 31, 32, 32, 31, 31, 32, 31, 31}};
+
+array <int> primes_codes_2 [6][12] = {{31, 32, 32, 31, 31, 31, 32, 32, 31, 31, 32, 32},
+                                    {32, 32, 31, 32, 31, 32, 31, 31, 32, 31, 31, 32},
+                                    {32, 31, 32, 31, 31, 32, 32, 32, 31, 31, 32, 31},
+                                    {31, 32, 31, 32, 31, 32, 31, 32, 32, 31, 31, 32},
+                                    {32, 32, 31, 31, 32, 32, 32, 32, 31, 31, 31, 31},
+                                    {31, 32, 32, 31, 31, 31, 31, 32, 31, 32, 32, 32}};
+
+
+array <string> targets_1 [6][12][4] = {{{"The speaker", "proposed", "by the group", "was engaging."},
+                                    {"The star", "recognized", "by the fans", "was famous."},
+                                    {"The vet", "scratched", "by the tiger", "was hurt."},
+                                    {"The contestant", "selected", "by the bachelor", "was the best choice."},
+                                    {"The assistant", "recorded", "by the actor", "was nosy."},
+                                    {"The singer", "wanted", "by the company", "had a nice voice."},
+                                    {"The team", "discussed", "by the coach", "was winning."},
+                                    {"The lifeguard", "watched", "by the swimmer", "had a suntan."},
+                                    {"The actress", "loved", "by the fans", "was in a movie."},
+                                    {"The scientist", "considered", "by the committee", "was qualified."},
+                                    {"The mailman", "transported", "by the airline", "had secret documents."},
+                                    {"The nurse", "requested", "by the hospital", "was busy."}},
+                                
+                                    {{"The mother", "attacked", "by the thief", "was scratched."},
+                                    {"The man", "paid", "by the roommate", "was stingy."},
+                                    {"The worker", "examined", "by the boss", "was wasteful."},
+                                    {"The tourist", "chased", "by the lion", "was scared."},
+                                    {"The father", "sketched", "by the daughter", "was tall."},
+                                    {"The artist", "studied", "by the researcher", "was unknown."},
+                                    {"The criminal", "recognized", "by the officer", "was dangerous."},
+                                    {"The child", "scratched", "by the dog", "was annoyed."},
+                                    {"The trainer", "wanted", "by the athlete", "was busy."},
+                                    {"The director", "described", "by the actress", "was rude."},
+                                    {"The singer", "recorded", "by the reporters", "was in a scandal."},
+                                    {"The thief", "identified", "by the victim", "was tall."}},
+
+                                    {{"The assistant", "selected", "by the king", "was loyal."},
+                                    {"The soldier", "studied", "by the journalist", "was brave."},
+                                    {"The child", "identified", "by the teacher", "had blond hair."},
+                                    {"The lawyer", "sent", "by the governor", "was late."},
+                                    {"The candidate", "considered", "by the company", "was accomplished."},
+                                    {"The trainer", "requested", "by the dancer", "was strict."},
+                                    {"The teacher", "recognized", "by the student", "was tall."},
+                                    {"The child", "chased", "by the chicken", "was fast."},
+                                    {"The mailman", "expected", "by the worker", "was quick."},
+                                    {"The woman", "watched", "by the crowd", "was suspicious."},
+                                    {"The boy", "attacked", "by the dog", "had major injuries."},
+                                    {"The student", "discussed", "by the program", "was failing."}},
+                                
+                                    {{"The director", "accepted", "by the academy", "was happy."},
+                                    {"The man", "sketched", "by the painter", "was handsome."},
+                                    {"The dancer", "recorded", "by the professor", "was graceful."},
+                                    {"The king", "transported", "by the soldier", "was in disguise."},
+                                    {"The engineer", "examined", "by the board", "was qualified."},
+                                    {"The boy", "described", "by the woman", "was handsome."},
+                                    {"The customer", "selected", "by the guard", "was suspicious."},
+                                    {"The couple", "towed", "by the driver", "was in an accident."},
+                                    {"The athlete", "studied", "by the trainer", "was strong."},
+                                    {"The dog", "loved", "by the child", "was cute."},
+                                    {"The star", "identified", "by the policeman", "had blue eyes."},
+                                    {"The tutor", "requested", "by the school", "was smart."}},
+                                    
+                                    {{"The man", "scratched", "by the cat", "was badly injured."},
+                                    {"The actor", "proposed", "by the writer", "was talented."},
+                                    {"The friend", "paid", "by the gardener", "was grateful."},
+                                    {"The customer", "sketched", "by the waitress", "was kind."},
+                                    {"The referee", "sent", "by the office", "was fair."},
+                                    {"The prisoner", "transported", "by the guards", "was dangerous."},
+                                    {"The criminal", "towed", "by the policeman", "was angry."},
+                                    {"The chef", "expected", "by the couple", "was late."},
+                                    {"The assistant", "described", "by the visitor", "had green eyes."},
+                                    {"The candidate", "accepted", "by the party", "was qualified."},
+                                    {"The client", "discussed", "by the company", "was convincing."},
+                                    {"The pilot", "attacked", "by the mob", "was scared."}},
+                                    
+                                    {{"The client", "examined", "by the lawyer", "was guilty."},
+                                    {"The woman", "towed", "by the landlord", "was annoyed."},
+                                    {"The teacher", "loved", "by the class", "was cheerful."},
+                                    {"The worker", "paid", "by the manager", "was capable."},
+                                    {"The doctor", "accepted", "by the hospital", "was smart."},
+                                    {"The thief", "watched", "by the cop", "was sneaky."},
+                                    {"The client", "wanted", "by the detective", "was rich."},
+                                    {"The patient", "expected", "by the surgeon", "was sick."},
+                                    {"The nurse", "sent", "by the doctor", "was kind."},
+                                    {"The manager", "proposed", "by the boss", "was accomplished."},
+                                    {"The student", "considered", "by the college", "was good at sports."},
+                                    {"The soldier", "chased", "by the guard", "was guilty."}}};
+
+array <string> targets_2[6][12][4] = {{{"The boy", "described", "by the woman", "was handsome."},
+                                    {"The king", "transported", "by the soldier", "was in disguise."},
+                                    {"The woman", "watched", "by the crowd", "was suspicious."},
+                                    {"The man", "paid", "by the roommate", "was stingy."},
+                                    {"The speaker", "proposed", "by the group", "was engaging."},
+                                    {"The boy", "attacked", "by the dog", "had major injuries."},
+                                    {"The child", "scratched", "by the dog", "was annoyed."},
+                                    {"The student", "discussed by the program", "was failing."},
+                                    {"The criminal", "recognized", "by the officer", "was dangerous."},
+                                    {"The soldier", "studied by the journalist", "was brave."},
+                                    {"The dog", "loved", "by the child", "was cute."},
+                                    {"The trainer", "wanted", "by the athlete", "was busy."}},
+
+												{{"The chef", "expected", "by the couple", "was late."},
+                                    {"The star", "recognized", "by the fans", "was famous."},
+                                    {"The man", "scratched", "by the cat", "was badly injured."},
+                                    {"The assistant", "recorded", "by the actor", "was nosy."},
+                                    {"The lawyer", "sent", "by the governor", "was late."},
+                                    {"The child", "chased", "by the chicken", "was fast."},
+                                    {"The team", "discussed", "by the coach", "was winning."},
+                                    {"The director", "accepted", "by the academy", "was happy."},
+                                    {"The criminal", "towed", "by the policeman", "was angry."},
+                                    {"The lifeguard", "watched", "by the swimmer", "had a suntan."},
+                                    {"The client", "wanted", "by the detective", "was rich."},
+                                    {"The candidate", "considered", "by the company", "was accomplished."}},
+                                    
+                                    {{"The woman", "towed", "by the landlord", "was annoyed."},
+                                    {"The worker", "paid", "by the manager", "was capable."},
+                                    {"The tutor", "requested", "by the school", "was smart."},
+                                    {"The manager", "proposed", "by the boss", "was accomplished."},
+                                    {"The client", "examined", "by the lawyer", "was guilty."},
+                                    {"The patient", "expected", "by the surgeon", "was sick."},
+                                    {"The soldier", "chased", "by the guard", "was guilty."},
+                                    {"The student", "considered", "by the college", "was good at sports."},
+                                    {"The contestant", "selected", "by the bachelor", "was the best choice."},
+                                    {"The customer", "sketched", "by the waitress", "was kind."},
+                                    {"The athlete", "studied", "by the trainer", "was strong."},
+                                    {"The thief", "identified", "by the victim", "was tall."}},
+                                    
+                                    {{"The nurse", "requested", "by the hospital", "was busy."},
+                                    {"The actress", "loved", "by the fans", "was in a movie."},
+                                    {"The referee", "sent", "by the office", "was fair."},
+                                    {"The assistant", "selected", "by the king", "was loyal."},
+                                    {"The couple", "towed", "by the driver", "was in an accident."},
+                                    {"The worker", "examined", "by the boss", "was wasteful."},
+                                    {"The artist", "studied", "by the researcher", "was unknown."},
+                                    {"The child", "identified", "by the teacher", "has blond hair."},
+                                    {"The mailman", "transported", "by the airline", "had secret letters."},
+                                    {"The mailman", "expected", "by the worker", "was quick."},
+                                    {"The candidate", "accepted", "by the party", "was qualified."},
+                                    {"The father", "sketched", "by the daughter", "was tall."}},
+                                    
+                                    {{"The mother", "attacked", "by the thief", "was scratched."},
+                                    {"The nurse", "sent", "by the doctor", "was kind."},
+                                    {"The prisoner", "transported", "by the guards", "was dangerous."},
+                                    {"The teacher", "loved", "by the class", "was cheerful."},
+                                    {"The director", "described", "by the actress", "was rude."},
+                                    {"The customer", "selected", "by the guard", "was suspicious."},
+                                    {"The star", "identified", "by the policeman", "had blue eyes."},
+                                    {"The doctor", "accepted", "by the hospital", "was smart."},
+                                    {"The man", "sketched", "by the painter", "was handsome."},
+                                    {"The teacher", "recognized", "by the student", "was tall."},
+                                    {"The engineer", "examined", "by the board", "was qualified."},
+                                    {"The dancer", "recorded", "by the professor", "was graceful."}},
+                                    
+                                    {{"The tourist", "chased", "by the lion", "was scared."},
+                                    {"The assistant", "described", "by the visitor", "had green eyes."},
+                                    {"The vet", "scratched", "by the tiger", "was hurt."},
+                                    {"The client", "discussed", "by the company", "was convincing."},
+                                    {"The trainer", "requested", "by the dancer", "was strict."},
+                                    {"The scientist", "considered", "by the committee", "was qualified."},
+                                    {"The singer", "recorded", "by the reporters", "was in a scandal."},
+                                    {"The friend", "paid", "by the gardener", "was grateful."},
+                                    {"The thief", "watched", "by the cop", "was sneaky."},
+                                    {"The singer", "wanted", "by the company", "had a nice voice."},
+                                    {"The pilot", "attacked", "by the mob", "was scared."},
+                                    {"The actor", "proposed", "by the writer", "was talented."}}};
+
+
+array <int> targets_codes_1[6][12] = {{72, 71, 71, 72, 71, 71, 72, 72, 71, 72, 71, 72},
+                                    {71, 72, 71, 72, 71, 72, 72, 71, 71, 71, 72, 72},
+                                    {71, 72, 71, 72, 71, 72, 72, 71, 72, 71, 72, 71},
+                                    {72, 72, 72, 71, 72, 72, 71, 72, 71, 71, 71, 71},
+                                    {72, 71, 71, 72, 72, 72, 71, 71, 71, 72, 72, 71},
+                                    {72, 71, 72, 72, 71, 72, 72, 71, 71, 72, 71, 71}};
+
+array <int> targets_codes_2[6][12] = {{71, 72, 72, 71, 71, 71, 72, 72, 71, 71, 72, 72},
+                                    {72, 72, 71, 72, 71, 72, 71, 71, 72, 71, 71, 72},
+                                    {72, 71, 72, 71, 71, 72, 72, 72, 71, 71, 72, 71},
+                                    {71, 72, 71, 72, 71, 72, 71, 72, 72, 71, 71, 72},
+                                    {72, 72, 71, 71, 72, 72, 72, 72, 71, 71, 71, 71},
+                                    {71, 72, 72, 71, 71, 71, 71, 72, 71, 72, 72, 72}};
+
+
+array <string> experimental_prompts_1[6][12] = {{"Did the speaker propose the group?",
+                                                "Did the fans recognize the star?",
+                                                "Did the vet scratch the tiger?",
+                                                "Did the contestant select the bachelor?",
+                                                "Did the actor record the assistant?",
+                                                "Did the company want the singer?",
+                                                "Did the coach discuss the team?",
+                                                "Did the lifeguard watch the swimmer?",
+                                                "Did the actress love the fans?",
+                                                "Did the committee consider the scientist?",
+                                                "Did the airline transport the mailman?",
+                                                "Did the hospital request the nurse?"},
+                                                    
+                                                {"Did the mother attack the thief?",
+                                                "Did the man pay the roommate?",
+                                                "Did the boss examine the worker?",
+                                                "Did the tourist chase the lion?",
+                                                "Did the daughter sketch the father?",
+                                                "Did the researcher study the artist?",
+                                                "Did the officer recognize the criminal?",
+                                                "Did the dog scratch the child?",
+                                                "Did the trainer want the athlete?",
+                                                "Did the actress describe the director?",
+                                                "Did the singer record the reporters?",
+                                                "Did the thief identify the victim?"},
+                                                    
+                                                {"Did the king select the assistant?",
+                                                "Did the soldier study the journalist?",
+                                                "Did the teacher identify the child?",
+                                                "Did the lawyer send the governor?",
+                                                "Did the company consider the candidate?",
+                                                "Did the trainer request the dancer?",
+                                                "Did the teacher recognize the student?",
+                                                "Did the child chase the chicken?",
+                                                "Did the mailman expect the worker?",
+                                                "Did the crowd watch the woman?",
+                                                "Did the dog attack the boy?",
+                                                "Did the program discuss the student?"},
+                                                    
+                                                {"Did the director accept the academy?",
+                                                "Did the man sketch the painter?",
+                                                "Did the dancer record the professor?",
+                                                "Did the king transport the soldier?",
+                                                "Did the engineer examine the board?",
+                                                "Did the boy describe the woman?",
+                                                "Did the guard select the customer?",
+                                                "Did the couple tow the driver?",
+                                                "Did the athlete study the trainer?",
+                                                "Did the child love the dog?",
+                                                "Did the star identify the policeman?",
+                                                "Did the tutor request the school?"},
+                                                    
+                                                {"Did the cat scratch the man?",
+                                                "Did the actor propose the writer?",
+                                                "Did the gardener pay the friend?",
+                                                "Did the customer sketch the waitress?",
+                                                "Did the office send the referee?",
+                                                "Did the guards transport the prisoner?",
+                                                "Did the policeman tow the criminal?",
+                                                "Did the couple expect the chef?",
+                                                "Did the assistant describe the visitor?",
+                                                "Did the party accept the candidate?",
+                                                "Did the client discuss the company?",
+                                                "Did the mob attack the pilot?"},
+                                                    
+                                                {"Did the lawyer examine the client?",
+                                                "Did the woman tow the landlord?",
+                                                "Did the teacher love the class?",
+                                                "Did the manager pay the worker?",
+                                                "Did the hospital accept the doctor?",
+                                                "Did the thief watch the cop?",
+                                                "Did the client want the detective?",
+                                                "Did the surgeon expect the patient?",
+                                                "Did the doctor send the nurse?",
+                                                "Did the boss propose the manager?",
+                                                "Did the student consider the college?",
+                                                "Did the guard chase the soldier?"}};
+
+array <string> experimental_prompts_2[6][12] = {{"Did the boy describe the woman?", 
+                                                    "Did the king transport the soldier?",
+                                                    "Did the crowd watch the woman?",
+                                                    "Did the man pay the roommate?",
+                                                    "Did the speaker propose the group?",
+                                                    "Did the dog attack the boy?",
+                                                    "Did the dog scratch the child?",
+                                                    "Did the program discuss the student?",
+                                                    "Did the officer recognize the criminal?",
+                                                    "Did the journalist study the soldier?",
+                                                    "Did the child love the dog?",
+                                                    "Did the trainer want the athlete?"},
+                                                    
+                                                    {"Did the couple expect the chef?",
+                                                    "Did the fans recognize the star?",
+                                                    "Did the cat scratch the man?",
+                                                    "Did the actor record the assistant?",
+                                                    "Did the lawyer send the governor?",
+                                                    "Did the child chase the chicken?",
+                                                    "Did the coach discuss the team?",
+                                                    "Did the director accept the academy?",
+                                                    "Did the policeman tow the criminal?",
+                                                    "Did the lifeguard watch the swimmer?",
+                                                    "Did the client want the detective?",
+                                                    "Did the company consider the candidate?"},
+                                                    
+                                                    {"Did the woman tow the landlord?",
+                                                    "Did the manager pay the worker?",
+                                                    "Did the tutor request the school?",
+                                                    "Did the boss propose the manager?",
+                                                    "Did the lawyer examine the client?",
+                                                    "Did the surgeon expect the patient?",
+                                                    "Did the guard chase the soldier?",
+                                                    "Did the student consider the college?",
+                                                    "Did the contestant select the bachelor?",
+                                                    "Did the customer sketch the waitress?",
+                                                    "Did the athlete study the trainer?",
+                                                    "Did the thief identify the victim?"},
+                                                    
+                                                    {"Did the hospital request the nurse?",
+                                                    "Did the actress love the fans?",
+                                                    "Did the office send the referee?",
+                                                    "Did the king select the assistant?",
+                                                    "Did the couple tow the driver?",
+                                                    "Did the boss examine the worker?",
+                                                    "Did the researcher study the artist?",
+                                                    "Did the teacher identify the child?",
+                                                    "Did the airline transport the mailman?",
+                                                    "Did the mailman expect the worker?",
+                                                    "Did the candidate accept the party?",
+                                                    "Did the daughter sketch the father?"},
+                                                    
+                                                    {"Did the mother attack the thief?",
+                                                    "Did the doctor send the nurse?",
+                                                    "Did the guards transport the prisoner?",
+                                                    "Did the teacher love the class?",
+                                                    "Did the actress describe the director?",
+                                                    "Did the guard select the customer?",
+                                                    "Did the star identify the policeman?",
+                                                    "Did the hospital accept the doctor?",
+                                                    "Did the man sketch the painter?",
+                                                    "Did the teacher recognize the student?",
+                                                    "Did the engineer examine the board?",
+                                                    "Did the dancer record the professor?"},
+                                                    
+                                                    {"Did the tourist chase the lion?",
+                                                    "Did the assistant describe the visitor?",
+                                                    "Did the vet scratch the tiger?",
+                                                    "Did the client discuss the company?",
+                                                    "Did the trainer request the dancer?",
+                                                    "Did the committee consider the scientist?",
+                                                    "Did the singer record the reporters?",
+                                                    "Did the gardener pay the friend?",
+                                                    "Did the thief watch the cop?",
+                                                    "Did the company want the singer?",
+                                                    "Did the mob attack the pilot?",
+                                                    "Did the actor propose the writer?"}};
+
+
+array <int> experimental_responses_1[6][12] = {{2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1}, 
+                                                {2, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 2},
+                                                {1, 2, 1, 2, 1, 2, 2, 2, 2, 1, 1, 1},
+                                                {2, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2},
+                                                {1, 2, 1, 2, 1, 1, 1, 1, 2, 1, 2, 1},
+                                                {1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 2, 1}};
+
+array <int> experimental_responses_2[6][12] = {{2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 1},
+                                                {1, 1, 1, 1, 2, 2, 1, 2, 1, 2, 2, 1},
+                                                {2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 2, 2},
+                                                {1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 2, 1},
+                                                {2, 1, 1, 2, 1, 1, 2, 1, 2, 2, 2, 2},
+                                                {2, 2, 2, 2, 2, 1, 2, 1, 2, 1, 1, 2}};
+
+
+array <string> baselines [72][3] = {{"The puppy", "was barking", "in the garden."},
+												{"The hiker", "was camping", "on the mountain."},
+												{"The intern", "was coughing", "in the office."},
+												{"The baby", "was crawling", "on the floor."},
+												{"The cousin", "was crying", "at the funeral."},
+												{"The lady", "was dancing", "in the studio."},
+												{"The trainee", "was dreaming", "in the shop."},
+												{"The swimmer", "was diving", "in the pool."},
+												{"The brother", "was fencing", "in the tournament."},
+												{"The lawyer", "was frowning", "in the courthouse."},
+												{"The colleague", "was gesturing", "in the meeting."},
+												{"The felon", "was grimacing", "in the prison."},
+												{"The sister", "was grinning", "at the party."},
+												{"The werewolf", "was howling", "in the forest."},
+												{"The grandpa", "was jogging", "at the lake."},
+												{"The toddler", "was jumping", "at the park."},
+												{"The deacon", "was kneeling", "at the church."},
+												{"The dancer", "was laughing", "at the tryout."},
+												{"The strangers", "were resting", "on the bench."},
+												{"The bosses", "were retiring", "from the company."},
+												{"The winners", "were running", "on the track."},
+												{"The nannies", "were shivering", "in the park."},
+												{"The mothers", "were showering", "in the bathroom."},
+												{"The fathers", "were shouting", "at the game."},
+												{"The actors", "were singing", "in the theater."},
+												{"The players", "were sitting", "on the pavement."},
+												{"The victors", "were skating", "in the arena."},
+												{"The families", "were skiing", "at the resort."},
+												{"The painters", "were sleeping", "on the porch."},
+												{"The waiters", "were smiling", "in the kitchen."},
+												{"The workers", "were sneezing", "in the office."},
+												{"The neighbors", "were snoring", "in the hotel."},
+												{"The doctors", "were speaking", "in the hallway."},
+												{"The husbands", "were standing", "in the courtyard."},
+												{"The lifeguards", "were swimming", "in the ocean."},
+												{"The daughters", "were talking", "on the terrace."},
+												{"The puppies", "was barking", "in the garden."},
+												{"The hikers", "was camping", "on the mountain."},
+												{"The interns", "was coughing", "in the office."},
+												{"The babies", "was crawling", "on the floor."},
+												{"The cousins", "was crying", "at the funeral."},
+												{"The ladies", "was dancing", "in the studio."},
+												{"The trainees", "was dreaming", "in the shop."},
+												{"The swimmers", "was diving", "in the pool."},
+												{"The brothers", "was fencing", "in the tournament."},
+												{"The lawyers", "was frowning", "in the courthouse."},
+												{"The colleagues", "was gesturing", "in the meeting."},
+												{"The felons", "was grimacing", "in the prison."},
+												{"The sisters", "was grinning", "at the party."},
+												{"The werewolves", "was howling", "in the forest."},
+												{"The grandpas", "was jogging", "at the lake."},
+												{"The toddlers", "was jumping", "at the park."},
+												{"The deacons", "was kneeling", "at the church."},
+												{"The dancers", "was laughing", "at the tryout."},
+												{"The stranger", "were resting", "on the bench."},
+												{"The boss", "were retiring", "from the company."},
+												{"The winner", "were running", "on the track."},
+												{"The nanny", "were shivering", "in the park."},
+												{"The mother", "were showering", "in the bathroom."},
+												{"The father", "were shouting", "at the game."},
+												{"The actor", "were singing", "in the theater."},
+												{"The player", "were sitting", "on the pavement."},
+												{"The victor", "were skating", "in the arena."},
+												{"The family", "were skiing", "at the resort."},
+												{"The painter", "were sleeping", "on the porch."},
+												{"The waiter", "were smiling", "in the kitchen."},
+												{"The worker", "were sneezing", "in the office."},
+												{"The neighbor", "were snoring", "in the hotel."},
+												{"The doctor", "were speaking", "in the hallway."},
+												{"The husband", "were standing", "in the courtyard."},
+												{"The lifeguard", "were swimming", "in the ocean."},
+												{"The daughter", "were talking", "on the terrace."}};
+
+
+array <int> baseline_codes [72][3] = {{20, 21, 22}, 
+                                    {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+                                        {20, 21, 22},
+
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25},
+                                        {23, 24, 25}};
+
+array <string> baseline_prompts [36] = {"Did the puppy bark in the garden?",
+                                        "Did the hiker camp in the woods?",
+                                        "Did the intern cough in the office?",
+                                        "Did the baby crawl on the floor?",
+                                        "Did the cousin cry at the movies?",
+                                        "Did the lady dance in the ballroom?",
+                                        "Did the trainee dream in the shop?",
+                                        "Did the swimmer dive in the ocean?",
+                                        "Did the brother fence in the tournament?",
+                                        "Did the lawyer frown in the courthouse?",
+                                        "Did the colleague gesture in the classroom?",
+                                        "Did the felon grimace in the prison?",
+                                        "Did the sister grin at the wedding?",
+                                        "Did the werewolf howl in the house?",
+                                        "Did the grandpa jog at the lake?",
+                                        "Did the toddler jump at the school?",
+                                        "Did the deacon kneel at the church?",
+                                        "Did the dancer laugh at the performance?",
+                                        "Did the strangers rest at the park?",
+                                        "Did the bosses retire from the company?",
+                                        "Did the winners run on the track?",
+                                        "Did the nannies shiver in the house?",
+                                        "Did the mothers shower in the bathroom?",
+                                        "Did the fathers shout at the game?",
+                                        "Did the actors sing in the theater?",
+                                        "Did the players sit on the bench?",
+                                        "Did the victors skate in the area?",
+                                        "Did the families ski at the mountain?",
+                                        "Did the painters sleep in the studio?",
+                                        "Did the waiters smile in the restaurant?",
+                                        "Did the workers sneeze in the office?",
+                                        "Did the neighbors snore in the house?",
+                                        "Did the doctors speak in the hallway?",
+                                        "Did the husbands stand on the lawn?",
+                                        "Did the lifeguards swim in the ocean?",
+                                        "Did the daughters talk at the sleepover?"};
+
+array <int> baseline_responses [36] = {1, 2, 1, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1, 2, 1,
+                                        2, 2, 2, 1, 2, 1, 2, 1, 2};
+
+
+array <int> baseline_indicies [6][12] = {{36, 27, 70, 60, 1, 35, 26, 52, 54, 21, 46, 58},
+										{31, 17, 40, 71, 34, 65, 24, 51, 18, 44, 19, 72},
+										{37, 53, 33, 30, 32, 49, 23, 29, 63, 45, 28, 62},
+										{22, 38, 66, 8, 7, 50, 57, 56, 11, 4, 15, 67},
+										{59, 64, 20, 42, 41, 16, 3, 55, 25, 48, 14, 10},
+										{39, 6, 61, 9, 5, 68, 47, 2, 69, 43, 12, 13}};
+
+
+array <int> baseline_prompt_indicies_1 [6][12] = {{0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0},
+												{0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0},
+												{0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0},
+												{0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0},
+												{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0},
+							    				{0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1}};
+
+array <int> baseline_prompt_indicies_2 [6][12] = {{1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+                                                {1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+                                                {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0},
+                                                {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0},
+                                                {0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1},
+                                                {0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 1}};
+
+
+
+array <string> fillers [36][4] = {{"The woman", "bought", "the apple", "that was red."},
+                                    {"The boy", "met", "the athlete", "who was tall."},
+                                    {"The man", "called", "the neighbors", "who were noisy."},
+                                    {"The girl", "found", "the watch", "that was lost."},
+                                    {"The man", "saw", "the actress", "who was pretty."},
+                                    {"The girl", "ate", "the cake", "that was sweet."},
+                                    {"The boy", "drank", "the water", "that was cold."},
+                                    {"The woman", "liked", "the purse", "that was black."},
+                                    {"The boy", "failed", "the test", "that was hard."},
+                                    {"The man", "washed", "the shirt", "that was dirty."},
+                                    {"The girl", "pet", "the cat", "that was soft."},
+                                    {"The woman", "dropped", "the box", "that was heavy."},
+                                    {"The woman", "kissed", "the singer", "that was handsome."},
+                                    {"The boy", "lost", "the ring", "that was expensiv.e"},
+                                    {"The girl", "helped", "the teacher", "who was cold."},
+                                    {"The man", "chewed",  "the steak", "that was tough."},
+                                    {"The boy", "cleaned", "the room", "that was messy."},
+                                    {"The woman", "cooked", "the meal", "that was delicious."},
+                                    {"The man", "bought", "the book", "that was interesting."},
+                                    {"The girl", "met", "the student", "who was new."},
+                                    {"The woman", "called",  "the doctor",  "who was an expert."}, 
+                                    {"The boy", "found", "the money", "that was hidden."},
+                                    {"The girl", "saw", "the bird", "that was blue."},
+                                    {"The man", "ate", "the pizza", "that was hot."},
+                                    {"The man", "drank", "the juice", "that was sweet."},
+                                    {"The boy", "liked", "the car", "that was fast."},
+                                    {"The girl", "failed", "the exam", "that was long."},
+                                    {"The woman", "washed", "the dishes", "that were dirty."},
+                                    {"The boy", "pet", "the rabbit", "that was white."},
+                                    {"The man", "dropped", "the vase", "that was expensive."},
+                                    {"The girl", "kissed", "the dog", "that was cute."},
+                                    {"The woman", "lost", "the wallet", "that was leather."},
+                                    {"The woman", "helped", "the patient", "who was sick."},
+                                    {"The boy", "chewed", "the gum", "that was sticky."},
+                                    {"The girl", "cleaned", "the bathroom", "that was dirty."},
+                                    {"The man", "cooked", "the pasta", "that was tasty."}};
+
+
+array <string> filler_prompts [36] = {"Did the woman buy the apple?",
+                                        "Did the boy meet the athlete?",
+                                        "Did the man call the police?",
+                                        "Did the girl find the watch?",
+                                        "Did the man see the astronaut?",
+                                        "Did the girl eat the orange?",
+                                        "Did the boy drink the water?",
+                                        "Did the woman like the dress?",
+                                        "Did the boy fail the test?",
+                                        "Did the man wash the pants?",
+                                        "Did the girl pat the rabbit?",
+                                        "Did the woman drop the box?",
+                                        "Did the woman kiss the actor?",
+                                        "Did the boy lose the ring?",
+                                        "Did the girl help the grandmother?",
+                                        "Did the man chew the steak?",
+                                        "Did the boy clean the room?",
+                                        "Did the woman cook the meal?",
+                                        "Did the man buy the puzzle?",
+                                        "Did the girl meet the student?",
+                                        "Did the woman call the mailman?",
+                                        "Did the boy find the hat?",
+                                        "Did the girl see the cat?",
+                                        "Did the man eat the pizza?",
+                                        "Did the man drink the juice?",
+                                        "Did the boy like the boat?",
+                                        "Did the girl fail the exam?",
+                                        "Did the woman wash the clothes?",
+                                        "Did the boy pat the lizard?",
+                                        "Did the man drop the vase?",
+                                        "Did the girl kiss the hamster?",
+                                        "Did the woman lose the wallet?",
+                                        "Did the woman help the baby?",
+                                        "Did the boy chew the cookie?",
+                                        "Did the girl clean the bathroom?",
+                                        "Did the man cook the pasta?"};
+
+
+array <int> filler_responses [36] = {1, 1, 2, 1, 2, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 2, 2, 2, 1, 1, 2, 1, 2,
+                                    2, 1, 2, 1, 2, 2, 1, 1};
+
+
+array <int> filler_indicies [6][12] = {{0, 10, 29, 0, 0, 0, 0, 5, 33, 0, 27, 26},
+			     						{0, 0, 25, 0, 0, 20, 0, 14, 1, 0, 15, 3},
+										{31, 0, 30, 0, 0, 7, 21, 0, 9, 0, 4, 0},
+										{0, 35, 19, 0, 8, 0, 34, 0, 0, 12, 0, 2},
+										{6, 0, 13, 36, 0, 22, 0, 32, 0, 23, 0, 0},
+										{24, 0, 18, 0, 0, 17, 0, 0, 11, 16, 28, 0}};
+
+array <int> filler_response_indicies_1 [6][12] = {{0, 10, 29, 0, 0, 0, 0, 0, 0, 0, 27, 0},
+												{0, 0, 25, 0, 0, 20, 0, 0, 0, 0, 15, 0},
+												{0, 0, 0, 0, 0, 7, 21, 0, 0, 0, 3, 0},
+												{0, 35, 19, 0, 8, 0, 0, 0, 0, 0, 0, 0},
+												{6, 0, 0, 36, 0, 0, 0, 32, 0, 0, 0, 0},
+												{0, 0, 18, 0, 0, 17, 0, 0, 0, 0, 28, 0}};
+
+array <int> filler_response_indicies_2 [6][12] = {{0, 0, 0, 0, 0, 0, 0, 5, 33, 0, 0, 26},
+												{0, 0, 0, 0, 0, 0, 0, 14, 1, 0, 0, 3},
+												{31, 0, 30, 0, 0, 0, 0, 0, 9, 0, 0, 0},
+												{0, 0, 0, 0, 0, 0, 34, 0, 0, 12, 0, 2},
+												{0, 0, 13, 0, 0, 22, 0, 0, 0, 23, 0, 0},
+												{24, 0, 0, 0, 0, 0, 0, 0, 11, 16, 0, 0}};
+
+array <int> block_indicies [6] = {1, 2, 3, 4, 5, 6};
+
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+int list = int(list_wrapper.caption());
+
+output_file log = new output_file;
+log.open("logs/SPERP_log" + date_time( "yyyy.mm.dd_hh.nn.ss" )+ ".csv");
+log.print("Stimulus Type,Stimulus,Response,Answer,Reaction Time\n");
+
+# Arrays to be used in rest of program, assigned to either _1 or _2 for switching list orders
+array <string> primes [6][12][4];
+array <int> primes_codes [6][12];
+array <string> targets [6][12][4];
+array <int> targets_codes[6][12];
+array <string> experimental_prompts [6][12];
+array <int> experimental_responses [6][12];
+array <int> baseline_prompt_indicies [6][12];
+array <int> filler_response_indicies [6][12];
+
+array <int> response_arr_t [6][12];
+array <double> reaction_arr_t [6][12];
+
+array <int> response_arr_b [6][0];
+array <double> reaction_arr_b [6][0];
+
+# List 1 first
+if (list == 1) then
+	primes = primes_1;
+    primes_codes = primes_codes_1;
+	targets = targets_1;
+    targets_codes = targets_codes_1;
+	experimental_prompts = experimental_prompts_1;
+	experimental_responses = experimental_responses_1;
+    baseline_prompt_indicies = baseline_prompt_indicies_1;
+	filler_response_indicies = filler_response_indicies_1;
+# List 2 first
+else
+	primes = primes_2;
+    primes_codes = primes_codes_2;
+	targets = targets_2;
+    targets_codes = targets_codes_2;
+	experimental_prompts = experimental_prompts_2;
+	experimental_responses = experimental_responses_2;
+    baseline_prompt_indicies = baseline_prompt_indicies_2;
+	filler_response_indicies = filler_response_indicies_2;
+end;
+
+# Turn data from stimulus manager into string for log file
+sub string type_to_string(int aType) begin
+	if aType == stimulus_hit then
+		return "CORRECT";
+	elseif aType == stimulus_incorrect then
+		return "INCORRECT";
+	else
+		return "MISS";
+	end;
+return "";
+end;
+
+# Subroutine with hard coded values for practice
+sub practice begin
+	loop int i = 1 until i > 2 begin
+
+		fixation.present();
+		loop int j = 1 until j > practice_experimental[i][1].count() begin
+			prime_text.set_caption(practice_experimental[i][1][j]);
+			prime_text.redraw();
+			prime.present();
+			sleep.present();
+			
+			j = j + 1;
+		end;
+	
+		fixation.present();
+		loop int j = 1 until j > practice_experimental[i][2].count() begin
+			target_text.set_caption(practice_experimental[i][2][j]);
+			target_text.redraw();
+			target.present();
+			sleep.present();
+			
+			j = j + 1;
+		end;
+	
+		prompt_sleep.present();
+		experimental_prompt.set_caption(practice_e_probes[i]);
+		experimental_prompt.redraw();
+		experimental_probe.get_stimulus_event(1).set_target_button(practice_e_responses[i]);
+		experimental_probe.present();
+		sleep.present();
+		
+		#show if correct
+		response_text.set_caption(type_to_string(stimulus_manager.last_stimulus_data().type()));
+		response_text.redraw();
+		response_trial.present();
+		sleep.present();
+		
+		fixation.present();
+		loop int j = 1 until j > practice_baseline[i].count() begin
+			baseline_text.set_caption(practice_baseline[i][j]);
+			baseline_text.redraw();
+			baseline.present();
+			sleep.present();
+			
+			j = j + 1;
+		end;
+		
+		prompt_sleep.present(); 
+		if (i == 1) then
+			baseline_prompt.set_caption(practice_b_probe);
+			baseline_prompt.redraw();
+			baseline_probe.get_stimulus_event(1).set_target_button(practice_b_response);
+			baseline_probe.present();
+
+			#show if correct; 
+			response_text.set_caption(type_to_string(stimulus_manager.last_stimulus_data().type()));
+			response_text.redraw();
+			response_trial.present();
+			sleep.present();
+			
+			
+		end;
+		
+		fixation.present(); 
+		loop int j = 1 until j > practice_filler[i].count() begin
+			filler_text.set_caption(practice_filler[i][j]);
+			filler_text.redraw();
+			filler.present();
+			sleep.present();
+			
+			j = j + 1;
+		end;
+		
+		prompt_sleep.present();
+		if (i == 2) then
+			filler_prompt.set_caption(practice_f_probe);
+			filler_prompt.redraw();
+			filler_probe.get_stimulus_event(1).set_target_button(practice_f_response);
+			filler_probe.present();
+			
+			#show if correct
+			response_text.set_caption(type_to_string(stimulus_manager.last_stimulus_data().type()));
+			response_text.redraw();
+			response_trial.present();
+			sleep.present();
+		end;
+		
+		i = i + 1;
+	end;
+end;
+
+sub block_output(int i) begin
+	
+	log.print("\n BLOCK " + string(i) + " DATA\n response accuracy,reaction average\n");  
+	
+	int hits = 12;
+	double avg = 0;
+	loop int j = 1 until j > response_arr_t[i].count() begin
+		hits = hits - response_arr_t[i][j];
+		avg = avg + reaction_arr_t[i][j];
+		
+		j = j + 1;
+	end;
+	
+	avg = avg/12;
+	
+	log.print("Targets\n" + string(double(hits)/12) + "," + string(avg) + "\n");
+	
+	avg = 0;
+	hits = 3;
+	loop int j = 1 until j > response_arr_b[i].count() begin
+		hits = hits - response_arr_b[i][j];
+		avg = avg + reaction_arr_b[i][j];
+		
+		j = j + 1;
+	end; 
+	
+	avg = avg/3;
+	
+	log.print("Baselines\n" + string(double(hits)/3) + "," + string(avg) + "\n");
+end;
+
+sub final_output begin
+	
+	log.print("FINAL OUTPUT\nresponse accuracy,reaction average\n");
+	
+	int hits = 72;
+	double avg = 0; 
+	
+	loop int i = 1 until i > response_arr_t.count() begin 
+		loop int j = 1 until j > response_arr_t[i].count() begin
+			hits = hits - response_arr_t[i][j];
+			avg = avg + reaction_arr_t[i][j];
+			j = j + 1;
+		end;
+		i = i + 1;
+	end;
+	
+	avg = avg/72;
+	
+	log.print("Targets\n" + string(double(hits)/72) + "," + string(avg) + "\n");
+	
+	hits = 18;
+	avg = 0;
+	loop int i = 1 until i > response_arr_b.count() begin 
+		loop int j = 1 until j > response_arr_b[i].count() begin
+			hits = hits - response_arr_b[i][j];
+			avg = avg + reaction_arr_b[i][j];
+			j = j + 1;
+		end;
+		i = i + 1;
+	end;
+	
+	avg = avg/72;
+	
+	log.print("Baselines\n" + string(double(hits)/18) + "," + string(avg) + "\n");
+end;
+			
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+########################################################################################################################
+
+block_indicies.shuffle();
+instr1.present();
+instr2.present();
+
+array <double> codes_tmp [1];
+
+#practice();
+
+string sentence = "";
+
+instr3.present();
+
+loop int k = 1 until k > block_indicies.count() begin
+
+	loop int i = 1 until i > primes[k].count() begin
+	
+		#primes
+		fixation.present();
+		loop int j = 1 until j > primes[block_indicies[k]][i].count() begin
+
+			prime_text.set_caption(primes[block_indicies[k]][i][j]);
+
+			sentence.append(primes[block_indicies[k]][i][j]);
+			sentence.append(" ");
+
+			prime_text.redraw();
+			if (j != 3) then
+				prime.get_stimulus_event(1).set_port_code(10+j);
+			else 
+				prime.get_stimulus_event(1).set_port_code(primes_codes[block_indicies[k]][i]);
+			end;
+			prime.present();
+
+			prime.get_stimulus_event(1).get_port_codes(codes_tmp);
+			term.print_line("PRIME: " + string(codes_tmp[1]));
+
+			sleep.present();
+			j = j + 1;
+		end;
+		
+        term.print_line("PRIME: " + sentence);
+
+			
+		#targets
+		fixation.present();
+		loop int j = 1 until j > targets[block_indicies[k]][i].count() begin
+
+			target_text.set_caption(targets[block_indicies[k]][i][j]);
+
+			sentence.append(targets[block_indicies[k]][i][j]);
+			sentence.append(" ");
+
+			target_text.redraw();
+			if (j != 3) then
+				target.get_stimulus_event(1).set_port_code(j+14);
+			else
+				target.get_stimulus_event(1).set_port_code(targets_codes[block_indicies[k]][i]);
+			end;
+			target.present();
+
+			target.get_stimulus_event(1).get_port_codes(codes_tmp);
+			term.print_line("TARGET: " + string(codes_tmp[1]));
+
+			sleep.present();
+			j = j + 1;
+		end;
+		
+        term.print_line("TARGET: " + sentence);
+		log.print("Target,");
+		log.print(sentence + ",");
+		sentence = "";
+	
+		#experimental prompts
+		prompt_sleep.present();
+		experimental_prompt.set_caption(experimental_prompts[block_indicies[k]][i]);
+		experimental_prompt.redraw();
+		experimental_probe.get_stimulus_event(1).set_target_button(experimental_responses[block_indicies[k]][i]);
+		experimental_probe.present();
+	
+        log.print(string(stimulus_manager.last_stimulus_data().button()) + ",");
+		log.print(type_to_string(stimulus_manager.last_stimulus_data().type()) + ",");
+		log.print(string(stimulus_manager.last_stimulus_data().reaction_time_double()) + "\n");
+
+		response_arr_t[k][i] = stimulus_manager.last_stimulus_data().type();
+		reaction_arr_t[k][i] = stimulus_manager.last_stimulus_data().reaction_time_double();
+
+        term.print_line(type_to_string(stimulus_manager.last_stimulus_data().type()));
+		
+		#baselines
+		fixation.present();
+        loop int j = 1 until j > baselines[baseline_indicies[block_indicies[k]][i]].count() begin
+
+            baseline_text.set_caption(baselines[baseline_indicies[block_indicies[k]][i]][j]);
+
+            sentence.append(baselines[baseline_indicies[block_indicies[k]][i]][j]);
+            sentence.append(" ");
+
+            baseline_text.redraw();
+
+            baseline.get_stimulus_event(1).set_port_code(baseline_codes[baseline_indicies[block_indicies[k]][i]][j]);
+            baseline.present();
+
+			baseline.get_stimulus_event(1).get_port_codes(codes_tmp);
+			term.print_line("BASELINE: " + string(codes_tmp[1]));
+
+            sleep.present();
+            j = j + 1;
+        end;
+
+        term.print_line("BASELINE: " + sentence);
+	
+		#baseline prompts
+		prompt_sleep.present();
+		
+		if (baseline_prompt_indicies[block_indicies[k]][i] == 1) then
+
+			baseline_prompt.set_caption(baseline_prompts[baseline_indicies[block_indicies[k]][i]]);
+			baseline_prompt.redraw();
+			baseline_probe.get_stimulus_event(1).set_target_button(baseline_responses[baseline_indicies[block_indicies[k]][i]]);
+			baseline_probe.present();
+			
+			log.print("Baseline,");
+			log.print(sentence + ",");
+            log.print(string(stimulus_manager.last_stimulus_data().button()) + ",");
+			log.print(type_to_string(stimulus_manager.last_stimulus_data().type()) + ",");
+			log.print(string(stimulus_manager.last_stimulus_data().reaction_time_double()) + "\n");
+
+			response_arr_b[k].add(stimulus_manager.last_stimulus_data().type());
+			reaction_arr_b[k].add(stimulus_manager.last_stimulus_data().reaction_time_double());
+
+            term.print_line(type_to_string(stimulus_manager.last_stimulus_data().type()));
+
+		end;
+		sentence = "";
+	
+		#fillers
+		if (filler_indicies[block_indicies[k]][i] != 0) then
+			fixation.present();
+			loop int j = 1 until j > fillers[filler_indicies[block_indicies[k]][i]].count() begin 
+
+				filler_text.set_caption(fillers[filler_indicies[block_indicies[k]][i]][j]);
+
+                sentence.append(fillers[filler_indicies[block_indicies[k]][i]][j]);
+                sentence.append(" ");
+
+				filler_text.redraw();
+
+				filler.get_stimulus_event(1).set_port_code(j+26);
+				filler.present();
+				filler.get_stimulus_event(1).get_port_codes(codes_tmp);
+
+				term.print_line("FILLER: " + string(codes_tmp[1]));
+
+				sleep.present();
+			
+				j = j + 1;
+			end; 
+
+            term.print_line("FILLER: " + sentence);
+            sentence = "";
+		
+			#filler prompts
+            if (filler_response_indicies[block_indicies[k]][i] != 0) then
+
+                prompt_sleep.present();
+                filler_prompt.set_caption(filler_prompts[filler_indicies[block_indicies[k]][i]]);
+                filler_prompt.redraw();
+                filler_probe.get_stimulus_event(1).set_target_button(filler_responses[filler_indicies[block_indicies[k]][i]]);
+                filler_probe.present();
+                
+                term.print_line(type_to_string(stimulus_manager.last_stimulus_data().type()));
+
+            end;
+		end;
+	
+		i = i + 1; 
+	end;
+	block_output(k);
+	break_trial.present();
+	
+	k = k + 1; 
+end;
+final_output();
+done_trial.present();
